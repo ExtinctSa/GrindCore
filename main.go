@@ -34,11 +34,11 @@ func main() {
 
 	mux := http.NewServeMux()
 
-	fs := http.StripPrefix("/app", http.FileServer(http.Dir(".")))
-	mux.Handle("/app/", apiCfg.MiddlewareMetricsInc(fs))
+	http.StripPrefix("/app", http.FileServer(http.Dir(".")))
 
 	//User Handlers
 	mux.HandleFunc("POST /api/users", apiCfg.CreateUserHandler)
+	mux.HandleFunc("POST /api/login", apiCfg.UserLogin)
 
 	server := &http.Server{
 		Addr:    ":9999",
