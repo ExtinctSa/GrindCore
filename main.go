@@ -36,9 +36,15 @@ func main() {
 
 	http.StripPrefix("/app", http.FileServer(http.Dir(".")))
 
-	//User Handlers
+	// User Handlers
 	mux.HandleFunc("POST /api/users", apiCfg.CreateUserHandler)
 	mux.HandleFunc("POST /api/login", apiCfg.UserLogin)
+	mux.HandleFunc("PUT /api/users", apiCfg.UserUpdateHandler)
+	mux.Handle("GET /api/me", apiCfg.AuthMiddleware(http.HandlerFunc(apiCfg.Me)))
+
+	// Validation Handlers
+	mux.HandleFunc("POST /api/refresh", apiCfg.RefreshTokenHandler)
+	mux.HandleFunc("POST /api/revoke", apiCfg.RefreshTokenRevokeHandler)
 
 	server := &http.Server{
 		Addr:    ":9999",

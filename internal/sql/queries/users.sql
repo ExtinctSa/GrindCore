@@ -18,3 +18,16 @@ RETURNING id, username, email, hashed_password, created_at;
 SELECT id, created_at, email, hashed_password, username
 FROM users
 WHERE username = $1;
+
+-- name: GetUserByID :one
+SELECT id, created_at, email, username
+FROM users
+WHERE id = $1;
+
+-- name: UpdateUser :one
+UPDATE users
+SET email = $2,
+    hashed_password = $3,
+    updated_at = NOW()
+WHERE id = $1
+RETURNING id, email, username, created_at, updated_at;
