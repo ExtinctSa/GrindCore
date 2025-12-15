@@ -48,6 +48,7 @@ func main() {
 
 	// Habit Handlers
 	mux.Handle("POST /api/habits", apiCfg.AuthMiddleware(http.HandlerFunc(apiCfg.CreateHabitHandler)))
+	mux.Handle("GET /api/habits", apiCfg.AuthMiddleware(http.HandlerFunc(apiCfg.ListHabitsHandler)))
 
 	server := &http.Server{
 		Addr:    ":9999",

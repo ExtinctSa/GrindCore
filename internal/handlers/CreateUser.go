@@ -34,15 +34,24 @@ func (cfg *ApiConfig) CreateUserHandler(w http.ResponseWriter, r *http.Request) 
 	//hashes inputted password before storing to database
 	hpass, err := auth.HashPassword(req.Password)
 	if err != nil {
-		http.Error(w, `{"error":"could not create user"}`, http.StatusInternalServerError)
+		http.Error(
+			w,
+			`{"error":"could not create user","details":"`+err.Error()+`"}`,
+			http.StatusInternalServerError,
+		)
 		return
 	}
 	user, err := cfg.DBQueries.CreateUserByEmail(r.Context(), database.CreateUserByEmailParams{
 		Email:          req.Email,
 		HashedPassword: hpass,
+		Username:       req.Username,
 	})
 	if err != nil {
-		http.Error(w, `{"error":"could not create user"}`, http.StatusInternalServerError)
+		http.Error(
+			w,
+			`{"error":"could not create user","details":"`+err.Error()+`"}`,
+			http.StatusInternalServerError,
+		)
 		return
 	}
 

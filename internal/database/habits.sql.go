@@ -56,12 +56,14 @@ func (q *Queries) DeleteHabit(ctx context.Context, id uuid.UUID) error {
 }
 
 const getAllHabits = `-- name: GetAllHabits :many
-SELECT id, habitname, frequency, category, created_at, updated_at, user_id FROM habits
+SELECT id, habitname, frequency, category, created_at, updated_at, user_id 
+FROM habits
+WHERE user_id = $1
 ORDER BY created_at ASC
 `
 
-func (q *Queries) GetAllHabits(ctx context.Context) ([]Habit, error) {
-	rows, err := q.db.QueryContext(ctx, getAllHabits)
+func (q *Queries) GetAllHabits(ctx context.Context, userID uuid.UUID) ([]Habit, error) {
+	rows, err := q.db.QueryContext(ctx, getAllHabits, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -92,13 +94,59 @@ func (q *Queries) GetAllHabits(ctx context.Context) ([]Habit, error) {
 }
 
 const getHabitByCategory = `-- name: GetHabitByCategory :many
-SELECT id, habitname, frequency, category, created_at, updated_at, user_id FROM habits
-WHERE category = $1
+SELECT id, habitname, frequency, category, created_at, updated_at, user_id 
+FROM habits
+WHERE user_id = $1 
+    AND category = $2
 ORDER BY created_at ASC
 `
 
-func (q *Queries) GetHabitByCategory(ctx context.Context, category sql.NullString) ([]Habit, error) {
-	rows, err := q.db.QueryContext(ctx, getHabitByCategory, category)
+type GetHabitByCategoryParams struct {
+	UserID   uuid.UUID
+	Category sql.NullString
+}
+
+func (q *Queries) GetHabitByCategory(ctx context.Context, arg GetHabitByCategoryParams) ([]Habit, error) {
+	rows, err := q.db.QueryContext(ctx, getHabitByCategory, arg.UserID, arg.Category)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Habit
+	for rows.Next() {
+		var i Habit
+		if err := rows.Scan(
+			&i.ID,
+			&i.Habitname,
+			&i.Frequency,
+			&i.Category,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.UserID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listHabitsWithoutCategory = `-- name: ListHabitsWithoutCategory :many
+SELECT id, habitname, frequency, category, created_at, updated_at, user_id
+FROM habits
+WHERE user_id = $1
+    AND category IS NULL
+ORDER BY created_at ASC
+`
+
+func (q *Queries) ListHabitsWithoutCategory(ctx context.Context, userID uuid.UUID) ([]Habit, error) {
+	rows, err := q.db.QueryContext(ctx, listHabitsWithoutCategory, userID)
 	if err != nil {
 		return nil, err
 	}

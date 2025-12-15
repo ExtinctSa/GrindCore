@@ -10,8 +10,8 @@ VALUES (
 RETURNING *;
 
 -- name: CreateUserByEmail :one
-INSERT INTO users (email, hashed_password)
-VALUES ($1, $2)
+INSERT INTO users (email, hashed_password, username)
+VALUES ($1, $2, $3)
 RETURNING id, username, email, hashed_password, created_at;
 
 -- name: GetUserByUsername :one

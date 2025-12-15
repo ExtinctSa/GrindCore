@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"net/http"
+	"strings"
 
 	"github.com/ExtinctSa/final_project/internal/auth"
 	"github.com/ExtinctSa/final_project/internal/database"
@@ -15,15 +16,23 @@ const userKey contextKey = "lowkenuinely"
 
 func (cfg *ApiConfig) AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		tokenString := r.Header.Get("Authorization")
-		if tokenString == "" {
+		authHeader := r.Header.Get("Authorization")
+		if authHeader == "" {
 			http.Error(w, "Unauthorized: missing token", http.StatusUnauthorized)
 			return
 		}
 
+		const bearerPrefix = "Bearer "
+		if !strings.HasPrefix(authHeader, bearerPrefix) {
+			http.Error(w, "Unauthorized: malformed token", http.StatusUnauthorized)
+			return
+		}
+
+		tokenString := strings.TrimPrefix(authHeader, bearerPrefix)
+
 		userID, err := auth.ValidateJWT(tokenString, cfg.Sk)
 		if err != nil {
-			http.Error(w, "Unathorized: Invalid Token", http.StatusUnauthorized)
+			http.Error(w, "Unauthorized: Invalid Token", http.StatusUnauthorized)
 			return
 		}
 

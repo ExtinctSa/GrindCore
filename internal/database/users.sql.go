@@ -53,14 +53,15 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 }
 
 const createUserByEmail = `-- name: CreateUserByEmail :one
-INSERT INTO users (email, hashed_password)
-VALUES ($1, $2)
+INSERT INTO users (email, hashed_password, username)
+VALUES ($1, $2, $3)
 RETURNING id, username, email, hashed_password, created_at
 `
 
 type CreateUserByEmailParams struct {
 	Email          string
 	HashedPassword string
+	Username       string
 }
 
 type CreateUserByEmailRow struct {
@@ -72,7 +73,7 @@ type CreateUserByEmailRow struct {
 }
 
 func (q *Queries) CreateUserByEmail(ctx context.Context, arg CreateUserByEmailParams) (CreateUserByEmailRow, error) {
-	row := q.db.QueryRowContext(ctx, createUserByEmail, arg.Email, arg.HashedPassword)
+	row := q.db.QueryRowContext(ctx, createUserByEmail, arg.Email, arg.HashedPassword, arg.Username)
 	var i CreateUserByEmailRow
 	err := row.Scan(
 		&i.ID,
