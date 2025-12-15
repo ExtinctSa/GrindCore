@@ -46,6 +46,9 @@ func main() {
 	mux.HandleFunc("POST /api/refresh", apiCfg.RefreshTokenHandler)
 	mux.HandleFunc("POST /api/revoke", apiCfg.RefreshTokenRevokeHandler)
 
+	// Habit Handlers
+	mux.Handle("POST /api/habits", apiCfg.AuthMiddleware(http.HandlerFunc(apiCfg.CreateHabitHandler)))
+
 	server := &http.Server{
 		Addr:    ":9999",
 		Handler: mux,

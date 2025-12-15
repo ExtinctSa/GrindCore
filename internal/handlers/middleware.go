@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"database/sql"
 	"net/http"
 
 	"github.com/ExtinctSa/final_project/internal/auth"
@@ -39,4 +40,14 @@ func (cfg *ApiConfig) AuthMiddleware(next http.Handler) http.Handler {
 func UserFromContext(ctx context.Context) (database.GetUserByIDRow, bool) {
 	user, ok := ctx.Value(userKey).(database.GetUserByIDRow)
 	return user, ok
+}
+
+func toNullString(s string) sql.NullString {
+	if s == "" {
+		return sql.NullString{Valid: false}
+	}
+	return sql.NullString{
+		String: s,
+		Valid:  true,
+	}
 }

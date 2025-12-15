@@ -11,6 +11,16 @@ import (
 	"github.com/google/uuid"
 )
 
+type Habit struct {
+	ID        uuid.UUID
+	Habitname string
+	Frequency string
+	Category  sql.NullString
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	UserID    uuid.UUID
+}
+
 type RefreshToken struct {
 	Token     string
 	CreatedAt time.Time
