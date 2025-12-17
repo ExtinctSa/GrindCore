@@ -37,6 +37,11 @@ func (cfg *ApiConfig) UserLogin(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, `{"error":"Incorrect username or password"}`, http.StatusUnauthorized)
 		return
 	}
+	match, err := auth.CheckPasswordHash(request.Password, user.HashedPassword)
+	if err != nil || !match {
+		http.Error(w, `{"error":"Incorrect username or password"}`, http.StatusUnauthorized)
+		return
+	}
 
 	accessToken, err := auth.MakeJWT(user.ID, cfg.Sk, time.Hour)
 	if err != nil {

@@ -137,6 +137,27 @@ func (q *Queries) GetHabitByCategory(ctx context.Context, arg GetHabitByCategory
 	return items, nil
 }
 
+const getHabitByID = `-- name: GetHabitByID :one
+SELECT id, habitname, frequency, category, created_at, updated_at, user_id
+FROM habits
+WHERE id = $1
+`
+
+func (q *Queries) GetHabitByID(ctx context.Context, id uuid.UUID) (Habit, error) {
+	row := q.db.QueryRowContext(ctx, getHabitByID, id)
+	var i Habit
+	err := row.Scan(
+		&i.ID,
+		&i.Habitname,
+		&i.Frequency,
+		&i.Category,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.UserID,
+	)
+	return i, err
+}
+
 const listHabitsWithoutCategory = `-- name: ListHabitsWithoutCategory :many
 SELECT id, habitname, frequency, category, created_at, updated_at, user_id
 FROM habits
@@ -174,4 +195,42 @@ func (q *Queries) ListHabitsWithoutCategory(ctx context.Context, userID uuid.UUI
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateHabit = `-- name: UpdateHabit :one
+UPDATE habits
+SET
+    habitName = COALESCE($2, habitName),
+    frequency = COALESCE($3, frequency),
+    category = COALESCE($4, category),
+    updated_at = NOW()
+WHERE id = $1
+RETURNING id, habitName, frequency, category, created_at, updated_at, user_id
+`
+
+type UpdateHabitParams struct {
+	ID        uuid.UUID
+	Habitname string
+	Frequency string
+	Category  sql.NullString
+}
+
+func (q *Queries) UpdateHabit(ctx context.Context, arg UpdateHabitParams) (Habit, error) {
+	row := q.db.QueryRowContext(ctx, updateHabit,
+		arg.ID,
+		arg.Habitname,
+		arg.Frequency,
+		arg.Category,
+	)
+	var i Habit
+	err := row.Scan(
+		&i.ID,
+		&i.Habitname,
+		&i.Frequency,
+		&i.Category,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.UserID,
+	)
+	return i, err
 }

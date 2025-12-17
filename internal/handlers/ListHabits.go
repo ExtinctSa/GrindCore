@@ -6,9 +6,11 @@ import (
 	"net/http"
 
 	"github.com/ExtinctSa/final_project/internal/database"
+	"github.com/google/uuid"
 )
 
 func (cfg *ApiConfig) ListHabitsHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
 	user, ok := UserFromContext(r.Context())
 	if !ok {
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
@@ -41,4 +43,28 @@ func (cfg *ApiConfig) ListHabitsHandler(w http.ResponseWriter, r *http.Request) 
 	}
 
 	json.NewEncoder(w).Encode(habits)
+}
+
+func (cfg *ApiConfig) ListHabitsByID(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	idStr := r.URL.Query().Get("id")
+	if idStr == "" {
+		http.Error(w, `{"error":"missing habit ID"}`, http.StatusBadRequest)
+		return
+	}
+
+	habitID, err := uuid.Parse(idStr)
+	if err != nil {
+		http.Error(w, `{"error":"invalid habit ID"}`, http.StatusBadRequest)
+		return
+	}
+
+	habit, err := cfg.DBQueries.GetHabitByID(r.Context(), habitID)
+	if err != nil {
+		http.Error(w, `{"error":"habit not found"}`, http.StatusNotFound)
+		return
+	}
+
+	json.NewEncoder(w).Encode(habit)
 }

@@ -8,6 +8,7 @@ import (
 
 	"github.com/ExtinctSa/final_project/internal/database"
 	handler "github.com/ExtinctSa/final_project/internal/handlers"
+
 	"github.com/joho/godotenv"
 
 	_ "github.com/lib/pq"
@@ -49,6 +50,8 @@ func main() {
 	// Habit Handlers
 	mux.Handle("POST /api/habits", apiCfg.AuthMiddleware(http.HandlerFunc(apiCfg.CreateHabitHandler)))
 	mux.Handle("GET /api/habits", apiCfg.AuthMiddleware(http.HandlerFunc(apiCfg.ListHabitsHandler)))
+	mux.Handle("GET /api/habits?id=<habit-id>", apiCfg.AuthMiddleware(http.HandlerFunc(apiCfg.ListHabitsByID)))
+	mux.Handle("PUT /api/habits", apiCfg.AuthMiddleware(http.HandlerFunc(apiCfg.UpdateHabit)))
 
 	server := &http.Server{
 		Addr:    ":9999",

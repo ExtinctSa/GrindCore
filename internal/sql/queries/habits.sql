@@ -26,3 +26,18 @@ FROM habits
 WHERE user_id = $1
     AND category IS NULL
 ORDER BY created_at ASC;
+
+-- name: GetHabitByID :one
+SELECT *
+FROM habits
+WHERE id = $1;
+
+-- name: UpdateHabit :one
+UPDATE habits
+SET
+    habitName = COALESCE($2, habitName),
+    frequency = COALESCE($3, frequency),
+    category = COALESCE($4, category),
+    updated_at = NOW()
+WHERE id = $1
+RETURNING id, habitName, frequency, category, created_at, updated_at, user_id;
