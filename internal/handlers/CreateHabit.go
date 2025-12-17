@@ -3,6 +3,7 @@ package handler
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -54,6 +55,7 @@ func (cfg *ApiConfig) CreateHabitHandler(w http.ResponseWriter, r *http.Request)
 	})
 	if err != nil {
 		http.Error(w, `{"error":"could not create habit"}`, http.StatusInternalServerError)
+		fmt.Printf("error:%v\n", err)
 		return
 	}
 
