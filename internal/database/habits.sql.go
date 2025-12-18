@@ -200,24 +200,27 @@ func (q *Queries) ListHabitsWithoutCategory(ctx context.Context, userID uuid.UUI
 const updateHabit = `-- name: UpdateHabit :one
 UPDATE habits
 SET
-    habitName = COALESCE($2, habitName),
-    frequency = COALESCE($3, frequency),
-    category = COALESCE($4, category),
+    habitName = COALESCE($3, habitName),
+    frequency = COALESCE($4, frequency),
+    category  = COALESCE($5, category),
     updated_at = NOW()
 WHERE id = $1
+  AND user_id = $2
 RETURNING id, habitName, frequency, category, created_at, updated_at, user_id
 `
 
 type UpdateHabitParams struct {
 	ID        uuid.UUID
-	Habitname string
-	Frequency string
+	UserID    uuid.UUID
+	Habitname sql.NullString
+	Frequency sql.NullString
 	Category  sql.NullString
 }
 
 func (q *Queries) UpdateHabit(ctx context.Context, arg UpdateHabitParams) (Habit, error) {
 	row := q.db.QueryRowContext(ctx, updateHabit,
 		arg.ID,
+		arg.UserID,
 		arg.Habitname,
 		arg.Frequency,
 		arg.Category,

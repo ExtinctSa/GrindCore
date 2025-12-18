@@ -35,9 +35,10 @@ WHERE id = $1;
 -- name: UpdateHabit :one
 UPDATE habits
 SET
-    habitName = COALESCE($2, habitName),
-    frequency = COALESCE($3, frequency),
-    category = COALESCE($4, category),
+    habitName = COALESCE(sqlc.narg(habitName), habitName),
+    frequency = COALESCE(sqlc.narg(frequency), frequency),
+    category  = COALESCE(sqlc.narg(category), category),
     updated_at = NOW()
 WHERE id = $1
+  AND user_id = $2
 RETURNING id, habitName, frequency, category, created_at, updated_at, user_id;
