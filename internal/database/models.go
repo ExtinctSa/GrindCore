@@ -11,6 +11,14 @@ import (
 	"github.com/google/uuid"
 )
 
+type Completion struct {
+	ID            uuid.UUID
+	HabitID       uuid.UUID
+	UserID        uuid.UUID
+	CompletedDate time.Time
+	CompletedAt   time.Time
+}
+
 type Habit struct {
 	ID        uuid.UUID
 	Habitname string
