@@ -1,59 +1,52 @@
-This is the entire backend of a web application I created to track a habit. I created this as I think it's a nice proof of concept for a possible mobile app I would want to create
-given the resources to do so. My main inspiration behind this was my father forgets to eat sometimes and I figured should this ever go into production it would be helpful for him.
-
-For the database side it's a standard SQL server I have set up like so:
-User Table:
-ID - a randomly generated UUID using Google's UUID package
-
-Username - allowed to be any text, the only constraint is that it cannot be null
-
-Email - same as username, as it is not in production it's not required to be an actual email
-
-Hashed_Password - as implied by the name it's the hashed version of whatever text was input as a password. This is never returned by any handler but is stored in the 
-
-database and checked against for authentication
-
-Created_at - a timestamp defaulting to the current time
-
-Updated_at - a timestamp defaulting to the current time, updates when the user data is updated
-
-Habits Table:
-ID - a randomly generated UUID using Google's UUID package
-
-HabitName - name of the habit, any text so long as it's not null
-
-Frequency - how often the habit/task is to be performed. As of right now it's functionally useless but it would be needed to send reminders to users accordingly
-
-Category - Used for sorting habits
-
-Created_at - a timestamp defaulting to the current time
-
-Updated_at - a timestamp defaulting to the current time, updates when the habit data is updated
-
-User_id - a UUID reference to a user in order to show ownership of habits in the database. References the ID section of the user table
-
-Completion Table:
-ID - a randomly generated UUID using Google's UUID package, this exists here just to make sure completion data is under a unique ID for storage and searching purposes
-
-Habit_id - a UUID reference to a habit, used to mark the correct habit as completed
-
-User_id - a UUID reference to a user in order to show ownership of habit completion in the database
-
-Completed_date - Date the habit was completed
-
-Completed_at - Timestamp with the default of the current time
-
-Habit_id and Completed_date must be unique from all other entries. Completion data cannot be stored twice in the database.
-The unfortunate side effect of this is that for tasks that are to be completed multiple times a day must be individual entries in the habit table.
-Essentially, you'd have to create multiple habits for different times a day if say you took medication more than once a day.
-
-Handler w/ middleware usage:
-To use any handler wrapped in the Authentication Middleware you must have an Authorization header.
-For example:
+Habit Tracker Backend
+This repository contains the entire backend of a web application I created to track habits. It serves as a proof of concept for a potential mobile app I’d like to build in the future, given the resources to do so.
+The main inspiration for this project came from my father, who sometimes forgets to eat. If this application were ever put into production, it could be used to send reminders and help with habit consistency.
+Note: This project is strictly backend logic. There is currently no frontend.
+Database Schema
+The application uses a standard SQL database with the following structure.
+Users Table
+Column Name	Description
+id	Randomly generated UUID (using Google’s UUID package)
+username	Any non-null text
+email	Any non-null text (not required to be a valid email)
+hashed_password	Hashed version of the user’s password (never returned by handlers)
+created_at	Timestamp, defaults to current time
+updated_at	Timestamp, defaults to current time and updates on user changes
+Habits Table
+Column Name	Description
+id	Randomly generated UUID
+habit_name	Name of the habit (non-null text)
+frequency	How often the habit should be completed (currently unused, intended for reminders)
+category	Used for sorting habits
+created_at	Timestamp, defaults to current time
+updated_at	Timestamp, defaults to current time and updates on habit changes
+user_id	UUID reference to the owning user (users.id)
+Completion Table
+Column Name	Description
+id	Randomly generated UUID (used for unique identification and searching)
+habit_id	UUID reference to a habit
+user_id	UUID reference to a user
+completed_date	Date the habit was completed
+completed_at	Timestamp, defaults to current time
+Constraints:
+The combination of habit_id and completed_date must be unique.
+Completion data cannot be stored twice for the same habit on the same date.
+Known Limitation:
+Because of this constraint, habits that need to be completed multiple times per day must be represented as separate habit entries. For example, taking medication twice daily would require two separate habits.
+Authentication & Middleware
+Any handler wrapped with the authentication middleware requires an Authorization header.
+Example Header
 -H "Authorization: Bearer <user-token>"
-The user token can be aquired by running the login handler and using a valid username and password:
-curl -X POST http://localhost:9999/api/login -H "Content-Type: application/json" -d '{"username": "<chosen-username>", "password": "<password>"}'
-it will be listed on the stdout return under "token: "
-
-I unfortunately don't have a front end for this app and this is strictly the backend logic. If there's a problem you spot with the code or something you wish to add
-please create a branch and a pull request.
+Obtaining a User Token
+You can obtain a token by calling the login handler with a valid username and password:
+curl -X POST http://localhost:9999/api/login \
+  -H "Content-Type: application/json" \
+  -d '{"username": "<chosen-username>", "password": "<password>"}'
+The token will be returned in the response under:
+token:
+Contributing
+This project currently has no frontend and focuses entirely on backend functionality.
+If you spot an issue, have suggestions, or want to add features:
+Create a new branch
+Open a pull request
+Contributions and feedback are welcome.
