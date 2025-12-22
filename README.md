@@ -4,26 +4,43 @@ given the resources to do so. My main inspiration behind this was my father forg
 For the database side it's a standard SQL server I have set up like so:
 User Table:
 ID - a randomly generated UUID using Google's UUID package
+
 Username - allowed to be any text, the only constraint is that it cannot be null
+
 Email - same as username, as it is not in production it's not required to be an actual email
-Hashed_Password - as implied by the name it's the hashed version of whatever text was input as a password. This is never returned by any handler but is stored in the database and checked against for authentication
+
+Hashed_Password - as implied by the name it's the hashed version of whatever text was input as a password. This is never returned by any handler but is stored in the 
+
+database and checked against for authentication
+
 Created_at - a timestamp defaulting to the current time
+
 Updated_at - a timestamp defaulting to the current time, updates when the user data is updated
 
 Habits Table:
 ID - a randomly generated UUID using Google's UUID package
+
 HabitName - name of the habit, any text so long as it's not null
+
 Frequency - how often the habit/task is to be performed. As of right now it's functionally useless but it would be needed to send reminders to users accordingly
+
 Category - Used for sorting habits
+
 Created_at - a timestamp defaulting to the current time
+
 Updated_at - a timestamp defaulting to the current time, updates when the habit data is updated
+
 User_id - a UUID reference to a user in order to show ownership of habits in the database. References the ID section of the user table
 
 Completion Table:
 ID - a randomly generated UUID using Google's UUID package, this exists here just to make sure completion data is under a unique ID for storage and searching purposes
+
 Habit_id - a UUID reference to a habit, used to mark the correct habit as completed
+
 User_id - a UUID reference to a user in order to show ownership of habit completion in the database
+
 Completed_date - Date the habit was completed
+
 Completed_at - Timestamp with the default of the current time
 
 Habit_id and Completed_date must be unique from all other entries. Completion data cannot be stored twice in the database.
