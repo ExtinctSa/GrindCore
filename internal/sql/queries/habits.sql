@@ -11,7 +11,8 @@ ORDER BY created_at ASC;
 
 -- name: DeleteHabit :exec
 DELETE FROM habits
-WHERE id = $1;
+WHERE user_id = $1
+    AND id = $2;
 
 -- name: GetHabitByCategory :many
 SELECT * 

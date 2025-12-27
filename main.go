@@ -52,6 +52,7 @@ func main() {
 	mux.Handle("GET /api/habits", apiCfg.AuthMiddleware(http.HandlerFunc(apiCfg.ListHabitsHandler)))
 	mux.Handle("GET /api/habits?id=<habit-id>", apiCfg.AuthMiddleware(http.HandlerFunc(apiCfg.ListHabitsByID)))
 	mux.Handle("PATCH /api/habits", apiCfg.AuthMiddleware(http.HandlerFunc(apiCfg.UpdateHabit)))
+	mux.Handle("DELETE /api/habits/{habitID}", apiCfg.AuthMiddleware(http.HandlerFunc(apiCfg.DeleteHabit)))
 
 	// Completion
 	mux.Handle("POST /api/habits/{id}/completion", apiCfg.AuthMiddleware(http.HandlerFunc(apiCfg.MarkCompletion)))
